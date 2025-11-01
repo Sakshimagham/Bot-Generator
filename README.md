@@ -100,7 +100,10 @@ Omni-Bot redefines how we connect with technology — blending intelligence, sim
 ### An innovative creator passionate about AI, simplicity, and empowering users with intelligent yet user-friendly technology.
 
 
-🖼️ Interface Preview
+# 🖼️ Interface Preview
+![Image Alt](image_url)
+![Image Alt](https://github.com/Sakshimagham/Bot-Generator/blob/aecb3b71d498c0e0147295c2dca7accb5a0a7a34/Screenshot%202025-11-01%20130946.png)
+
 Here’s a quick glimpse of how the Omni-Bot web interface looks in action — clean, interactive, and user-friendly.
 
 ✨ From setting up your bot to chatting live — everything happens in one place, beautifully designed for ease of use.
