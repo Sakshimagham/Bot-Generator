@@ -101,8 +101,9 @@ Omni-Bot redefines how we connect with technology — blending intelligence, sim
 
 
 # 🖼️ Interface Preview
-![Image Alt](image_url)
+
 ![Image Alt](https://github.com/Sakshimagham/Bot-Generator/blob/aecb3b71d498c0e0147295c2dca7accb5a0a7a34/Screenshot%202025-11-01%20130946.png)
+![Image Alt](image_url)
 
 Here’s a quick glimpse of how the Omni-Bot web interface looks in action — clean, interactive, and user-friendly.
 
