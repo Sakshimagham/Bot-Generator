@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Omni-Bot Creator</title>
+</head>
+<body>
+    <!-- This is the container where your React app (the Omni-Bot Creator) will be rendered. -->
+    <div id="root"></div>
+
+    <!-- Load your React app -->
+    <script type="module" src="/src/main.jsx"></script>
+
+    <!-- ✅ Add your chatbot script BELOW this line -->
+    <script>
+    (function(){
+      const BOT_URL="https://bot-generator-pi.vercel.app";
+      const button=document.createElement("button");
+      button.innerHTML="💬";
+      Object.assign(button.style,{
+        position:"fixed",bottom:"25px",right:"25px",
+        backgroundColor:"#2563eb",color:"#fff",border:"none",
+        borderRadius:"50%",width:"60px",height:"60px",fontSize:"28px",
+        cursor:"pointer",boxShadow:"0 4px 10px rgba(0,0,0,0.3)",zIndex:"99999"
+      });
+      document.body.appendChild(button);
+
+      const plate=document.createElement("div");
+      plate.textContent="💬 How can I assist you?";
+      Object.assign(plate.style,{
+        position:"fixed",bottom:"95px",right:"25px",background:"#fff",
+        color:"#2563eb",padding:"8px 14px",borderRadius:"25px",
+        fontSize:"14px",boxShadow:"0 3px 6px rgba(0,0,0,0.2)",
+        zIndex:"99999",transition:"opacity 0.5s ease"
+      });
+      document.body.appendChild(plate);
+      setTimeout(()=>plate.style.opacity="0",4000);
+
+      const frame=document.createElement("iframe");
+      frame.src=BOT_URL;
+      Object.assign(frame.style,{
+        position:"fixed",bottom:"90px",right:"25px",width:"420px",
+        height:"600px",border:"none",borderRadius:"20px",
+        boxShadow:"0 4px 20px rgba(0,0,0,0.3)",display:"none",zIndex:"99999"
+      });
+      document.body.appendChild(frame);
+
+      button.addEventListener("click",()=>{
+        frame.style.display=frame.style.display==="block"?"none":"block";
+      });
+    })();
+    </script>
+</body>
+</html>
