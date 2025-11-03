@@ -13,33 +13,37 @@
 
     <script>
     (function(){
-      // 💡 MODIFICATION: Using the 'clean' mode URL to trigger the configuration-free UI
-      const BOT_URL="https://bot-generator-pi.vercel.app/?mode=clean"; 
-      
-      // Use the main document's body for the button
-      const parentElement = document.body;
-      
+      // FIX: Changed from ${window.location.origin} to the absolute deployed URL.
+      const BOT_URL="https://bot-generator-pi.vercel.app/?mode=chat"; 
       const button=document.createElement("button");
-      // Corrected icon and font size
-      button.innerHTML="❓"; 
+      button.innerHTML="💬";
       Object.assign(button.style,{
         position:"fixed",bottom:"25px",right:"25px",
         backgroundColor:"#2563eb",color:"#fff",border:"none",
-        borderRadius:"50%",width:"60px",height:"60px",fontSize:"24px",
+        borderRadius:"50%",width:"60px",height:"60px",fontSize:"28px",
         cursor:"pointer",boxShadow:"0 4px 10px rgba(0,0,0,0.3)",zIndex:"99999"
       });
-      parentElement.appendChild(button);
+      document.body.appendChild(button);
 
-      // Removed: The 'plate' (temporary greeting bubble) is now absent.
+      const plate=document.createElement("div");
+      plate.textContent="💬 How can I assist you?";
+      Object.assign(plate.style,{
+        position:"fixed",bottom:"95px",right:"25px",background:"#fff",
+        color:"#2563eb",padding:"8px 14px",borderRadius:"25px",
+        fontSize:"14px",boxShadow:"0 3px 6px rgba(0,0,0,0.2)",
+        zIndex:"99999",transition:"opacity 0.5s ease"
+      });
+      document.body.appendChild(plate);
+      setTimeout(()=>plate.style.opacity="0",4000);
 
       const frame=document.createElement("iframe");
       frame.src=BOT_URL;
       Object.assign(frame.style,{
         position:"fixed",bottom:"90px",right:"25px",width:"420px",
         height:"600px",border:"none",borderRadius:"20px",
-        boxShadow:"0 4px 20px rgba(0,0,0,0.3)",display:"none",zIndex:"99998" // Changed Z-index
+        boxShadow:"0 4px 20px rgba(0,0,0,0.3)",display:"none",zIndex:"99999"
       });
-      parentElement.appendChild(frame);
+      document.body.appendChild(frame);
 
       button.addEventListener("click",()=>{
         frame.style.display=frame.style.display==="block"?"none":"block";
