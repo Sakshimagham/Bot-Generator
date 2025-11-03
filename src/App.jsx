@@ -112,7 +112,7 @@ const App = () => {
       parts: msg.parts.map((part) => ({
         text: part.text,
         inlineData: part.inlineData ? part.inlineData : undefined,
-      })),
+       })),
     }));
 
     const payload = {
@@ -384,10 +384,14 @@ const App = () => {
                   alert('Please enter a website URL first!');
                   return;
                 }
+                
+                // 🛑 CORRECTION APPLIED HERE
+                // Hardcode the deployed bot URL to fix the 404 error when embedding.
+                const DEPLOYED_BOT_URL = 'https://bot-generator-pi.vercel.app/'; 
 
                 const embedCode = `<script>
 (function(){
-  const BOT_URL="${window.location.origin}/?mode=chat";
+  const BOT_URL="${DEPLOYED_BOT_URL}?mode=chat"; // <<-- CORRECTED URL
   const button=document.createElement("button");
   button.innerHTML="💬";
   Object.assign(button.style,{
