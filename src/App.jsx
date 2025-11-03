@@ -387,7 +387,7 @@ const App = () => {
 
                 const embedCode = `<script>
 (function(){
-  const BOT_URL="${window.location.origin}?mode=chat";
+  const BOT_URL="${window.location.origin}/?mode=chat";
   const button=document.createElement("button");
   button.innerHTML="💬";
   Object.assign(button.style,{
