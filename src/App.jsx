@@ -168,25 +168,29 @@ const App = () => {
       <div className="p-4 bg-[--color-primary] text-white rounded-t-xl flex justify-between items-center shadow-lg">
         <h3 className="text-xl font-bold">Omni-Bot Live Chat</h3>
         {/* ✅ FIX 2: Conditionally hide 'Edit Config' button */}
-        **{!isCleanMode && (**           <button
+        {**!isCleanMode &&** (           
+          <button
             onClick={() => setBotState('SETUP')}
             className="text-sm px-3 py-1 bg-white bg-opacity-20 rounded-full hover:bg-opacity-30 transition font-medium"
           >
             Edit Config
           </button>
-        **)}**
+        )}
       </div>
 
       <div
         ref={chatHistoryRef}
         className="flex-grow p-4 space-y-4 overflow-y-auto custom-scrollbar bg-gray-50"
       >
-        <div className="flex justify-start">
-          <div className="max-w-[80%] p-3 rounded-xl shadow-md text-sm bg-indigo-600 text-white rounded-bl-sm animate-fade-in-down">
-            Hello! I’m running with your custom settings. Ask me anything about
-            your business.
+        {/* ✅ FIX 3: Conditionally hide the initial greeting bubble in clean mode */}
+        {!isCleanMode && (
+          <div className="flex justify-start">
+            <div className="max-w-[80%] p-3 rounded-xl shadow-md text-sm bg-indigo-600 text-white rounded-bl-sm animate-fade-in-down">
+                Hello! I’m running with your custom settings. Ask me anything about
+                your business.
+            </div>
           </div>
-        </div>
+        )}
 
         {chatHistory.map((msg, i) => {
           const textPart = msg.parts.find((p) => p.text)?.text || '';
@@ -248,13 +252,6 @@ const App = () => {
                 : 'Attach Image (Multimodal)'}
             </span>
           </label>
-          <input
-            type="file"
-            id="image-upload"
-            accept="image/*"
-            className="hidden"
-            onChange={(e) => setImageFile(e.target.files[0])}
-          />
           {imageFile && (
             <button
               onClick={() => setImageFile(null)}
@@ -264,6 +261,13 @@ const App = () => {
             </button>
           )}
         </div>
+        <input
+            type="file"
+            id="image-upload"
+            accept="image/*"
+            className="hidden"
+            onChange={(e) => setImageFile(e.target.files[0])}
+        />
 
         <div className="flex space-x-2">
           <input
@@ -284,7 +288,7 @@ const App = () => {
             disabled={isLoading || (!userInput.trim() && !imageFile)}
             className="bg-[--color-primary] text-white p-3 rounded-lg shadow-md hover:bg-[--color-primary-hover] disabled:opacity-50"
           >
-            ➤ {/* Already corrected to clean arrow */}
+            ➤
           </button>
         </div>
       </div>
