@@ -7,16 +7,14 @@
     <title>Omni-Bot Creator</title>
 </head>
 <body>
-    <!-- This is the container where your React app (the Omni-Bot Creator) will be rendered. -->
     <div id="root"></div>
 
-    <!-- Load your React app -->
     <script type="module" src="/src/main.jsx"></script>
 
-    <!-- ✅ Add your chatbot script BELOW this line -->
     <script>
     (function(){
-      const BOT_URL="${window.location.origin}/?mode=chat";
+      // FIX: Changed from ${window.location.origin} to the absolute deployed URL.
+      const BOT_URL="https://bot-generator-pi.vercel.app/?mode=chat"; 
       const button=document.createElement("button");
       button.innerHTML="💬";
       Object.assign(button.style,{
