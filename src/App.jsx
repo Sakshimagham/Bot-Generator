@@ -19,7 +19,14 @@ const fileToBase64 = (file) => {
 
 const App = () => {
   // --- State Management ---
-  const [botState, setBotState] = useState('SETUP'); // 'SETUP' or 'CHATTING'
+  
+  // ✅ FIX: Determine initial state based on the URL query parameter.
+  // This ensures the main app defaults to SETUP, but the iframe (with ?mode=chat) defaults to CHATTING.
+  const urlParams = new URLSearchParams(window.location.search);
+  const initialBotState = urlParams.get('mode') === 'chat' ? 'CHATTING' : 'SETUP';
+  
+  const [botState, setBotState] = useState(initialBotState); // Initial state uses the fixed logic
+  
   const [chatHistory, setChatHistory] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [userInput, setUserInput] = useState('');
@@ -386,12 +393,14 @@ const App = () => {
                 }
                 
                 // 🛑 CORRECTION APPLIED HERE
-                // Hardcode the deployed bot URL to fix the 404 error when embedding.
+                // 1. Hardcode the deployed bot URL.
                 const DEPLOYED_BOT_URL = 'https://bot-generator-pi.vercel.app/'; 
+                // 2. Append the ?mode=chat query parameter.
+                const FULL_BOT_URL = `${DEPLOYED_BOT_URL}?mode=chat`;
 
                 const embedCode = `<script>
 (function(){
-  const BOT_URL="${DEPLOYED_BOT_URL}?mode=chat"; // <<-- CORRECTED URL
+  const BOT_URL="${FULL_BOT_URL}"; // <<-- CORRECTED URL WITH MODE=CHAT
   const button=document.createElement("button");
   button.innerHTML="💬";
   Object.assign(button.style,{
