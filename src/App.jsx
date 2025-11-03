@@ -20,13 +20,15 @@ const fileToBase64 = (file) => {
 const App = () => {
   // --- State Management ---
   
-  // ✅ FIX: Determine initial state based on the URL query parameter.
-  // This ensures the main app defaults to SETUP, but the iframe (with ?mode=chat) defaults to CHATTING.
+  // ✅ SECURITY FIX: Detect if running in iframe and embedded mode
   const urlParams = new URLSearchParams(window.location.search);
-  const initialBotState = urlParams.get('mode') === 'chat' ? 'CHATTING' : 'SETUP';
+  const isEmbeddedMode = urlParams.get('mode') === 'chat';
+  const isInIframe = window.self !== window.top;
   
-  const [botState, setBotState] = useState(initialBotState); // Initial state uses the fixed logic
+  // Initial state: SETUP for admin, CHATTING for embedded widget
+  const initialBotState = isEmbeddedMode ? 'CHATTING' : 'SETUP';
   
+  const [botState, setBotState] = useState(initialBotState);
   const [chatHistory, setChatHistory] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [userInput, setUserInput] = useState('');
@@ -165,12 +167,15 @@ const App = () => {
     >
       <div className="p-4 bg-[--color-primary] text-white rounded-t-xl flex justify-between items-center shadow-lg">
         <h3 className="text-xl font-bold">Omni-Bot Live Chat</h3>
-        <button
-          onClick={() => setBotState('SETUP')}
-          className="text-sm px-3 py-1 bg-white bg-opacity-20 rounded-full hover:bg-opacity-30 transition font-medium"
-        >
-          Edit Config
-        </button>
+        {/* ✅ SECURITY FIX: Only show "Edit Config" button when NOT in embedded mode AND NOT in iframe */}
+        {!isEmbeddedMode && !isInIframe && (
+          <button
+            onClick={() => setBotState('SETUP')}
+            className="text-sm px-3 py-1 bg-white bg-opacity-20 rounded-full hover:bg-opacity-30 transition font-medium"
+          >
+            Edit Config
+          </button>
+        )}
       </div>
 
       <div
@@ -179,7 +184,7 @@ const App = () => {
       >
         <div className="flex justify-start">
           <div className="max-w-[80%] p-3 rounded-xl shadow-md text-sm bg-indigo-600 text-white rounded-bl-sm animate-fade-in-down">
-            Hello! I’m running with your custom settings. Ask me anything about
+            Hello! I'm running with your custom settings. Ask me anything about
             your business.
           </div>
         </div>
@@ -297,7 +302,7 @@ const App = () => {
         ⚙️ Omni-Bot Creator Setup
       </h2>
       <p className="text-gray-600 mb-6 border-b pb-4">
-        Define your bot’s role, knowledge base, and integration location.
+        Define your bot's role, knowledge base, and integration location.
       </p>
 
       <div className="space-y-6">
@@ -371,7 +376,7 @@ const App = () => {
         <div className="mt-6 p-4 border rounded-lg bg-gray-50">
           <h3 className="text-lg font-semibold mb-2">🌐 Integration</h3>
           <p className="text-sm text-gray-600 mb-2">
-            Paste your website URL below and click <strong>“Integrate Chatbot”</strong> to
+            Paste your website URL below and click <strong>"Integrate Chatbot"</strong> to
             generate the embed code instantly.
           </p>
 
@@ -379,7 +384,7 @@ const App = () => {
             <input
               type="url"
               placeholder="https://your-website.com"
-              value={setupConfig.websiteUrl}
+              value={setupConfig.websiteUrl || ''}
               onChange={(e) =>
                 setSetupConfig({ ...setupConfig, websiteUrl: e.target.value })
               }
@@ -392,17 +397,24 @@ const App = () => {
                   return;
                 }
                 
-                // 🛑 CORRECTION APPLIED HERE
-                // 1. Hardcode the deployed bot URL.
-                const DEPLOYED_BOT_URL = 'https://bot-generator-pi.vercel.app/'; 
-                // 2. Append the ?mode=chat query parameter.
+                // ✅ SECURITY FIX: Use current domain dynamically and add ?mode=chat
+                const DEPLOYED_BOT_URL = window.location.origin;
                 const FULL_BOT_URL = `${DEPLOYED_BOT_URL}?mode=chat`;
 
+                // ✅ SECURITY FIX: Prevent recursive iframe loading
                 const embedCode = `<script>
 (function(){
-  const BOT_URL="${FULL_BOT_URL}"; // <<-- CORRECTED URL WITH MODE=CHAT
+  // Prevent loading if already inside an iframe (avoid recursion)
+  if (window.self !== window.top) return;
+  
+  // Also check if we're in embedded mode via URL parameter
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('mode') === 'chat') return;
+  
+  const BOT_URL="${FULL_BOT_URL}";
   const button=document.createElement("button");
   button.innerHTML="💬";
+  button.setAttribute("aria-label", "Open chatbot");
   Object.assign(button.style,{
     position:"fixed",bottom:"25px",right:"25px",
     backgroundColor:"#2563eb",color:"#fff",border:"none",
@@ -424,6 +436,7 @@ const App = () => {
 
   const frame=document.createElement("iframe");
   frame.src=BOT_URL;
+  frame.setAttribute("title", "Chatbot");
   Object.assign(frame.style,{
     position:"fixed",bottom:"90px",right:"25px",width:"420px",
     height:"600px",border:"none",borderRadius:"20px",
