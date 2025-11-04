@@ -19,15 +19,12 @@ const fileToBase64 = (file) => {
 
 const App = () => {
   // --- State Management ---
-  
-  // ✅ SECURITY FIX: Detect if running in iframe and embedded mode
   const urlParams = new URLSearchParams(window.location.search);
   const isEmbeddedMode = urlParams.get('mode') === 'chat';
   const isInIframe = window.self !== window.top;
-  
-  // Initial state: SETUP for admin, CHATTING for embedded widget
+
   const initialBotState = isEmbeddedMode ? 'CHATTING' : 'SETUP';
-  
+
   const [botState, setBotState] = useState(initialBotState);
   const [chatHistory, setChatHistory] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -48,6 +45,22 @@ const App = () => {
     '--color-primary': '#4f46e5',
     '--color-primary-hover': '#4338ca',
   };
+
+  // ✅ NEW: Persist bot setup between preview and embed mode
+  useEffect(() => {
+    const saved = localStorage.getItem('omniBotSetup');
+    if (saved) {
+      try {
+        setSetupConfig(JSON.parse(saved));
+      } catch (err) {
+        console.error('Error loading saved config:', err);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('omniBotSetup', JSON.stringify(setupConfig));
+  }, [setupConfig]);
 
   // --- Scroll to bottom when chat updates ---
   useEffect(() => {
@@ -121,7 +134,7 @@ const App = () => {
       parts: msg.parts.map((part) => ({
         text: part.text,
         inlineData: part.inlineData ? part.inlineData : undefined,
-       })),
+      })),
     }));
 
     const payload = {
@@ -167,7 +180,6 @@ const App = () => {
     >
       <div className="p-4 bg-[--color-primary] text-white rounded-t-xl flex justify-between items-center shadow-lg">
         <h3 className="text-xl font-bold">Omni-Bot Live Chat</h3>
-        {/* ✅ SECURITY FIX: Only show "Edit Config" button when NOT in embedded mode AND NOT in iframe */}
         {!isEmbeddedMode && !isInIframe && (
           <button
             onClick={() => setBotState('SETUP')}
@@ -292,7 +304,7 @@ const App = () => {
     </div>
   );
 
-  // --- Setup Panel (Preview Button moved above Integration) ---
+  // --- Setup Panel ---
   const renderSetupPanel = () => (
     <div
       className="p-6 bg-white rounded-xl shadow-2xl border border-gray-100 max-w-2xl mx-auto ring-4 ring-indigo-500/50"
@@ -306,7 +318,7 @@ const App = () => {
       </p>
 
       <div className="space-y-6">
-        {/* 1. Purpose */}
+        {/* Bot Purpose */}
         <div>
           <label className="block text-sm font-semibold text-gray-700 mb-1">
             1. Bot Purpose/Role
@@ -321,7 +333,7 @@ const App = () => {
           />
         </div>
 
-        {/* 2. Simulated URL */}
+        {/* Simulated URL Content */}
         <div>
           <label className="block text-sm font-semibold text-gray-700 mb-1">
             2. Simulated URL Content / File Upload
@@ -347,7 +359,7 @@ const App = () => {
           />
         </div>
 
-        {/* 3. QnA */}
+        {/* Custom Q&A */}
         <div>
           <label className="block text-sm font-semibold text-gray-700 mb-1">
             3. Custom Q&A / Fine-Tuning
@@ -362,7 +374,7 @@ const App = () => {
           />
         </div>
 
-        {/* ✅ Preview Button */}
+        {/* Preview Button */}
         <div className="text-center mt-4">
           <button
             onClick={() => setBotState('CHATTING')}
@@ -372,12 +384,12 @@ const App = () => {
           </button>
         </div>
 
-        {/* 🌐 Integration Section */}
+        {/* Integration */}
         <div className="mt-6 p-4 border rounded-lg bg-gray-50">
           <h3 className="text-lg font-semibold mb-2">🌐 Integration</h3>
           <p className="text-sm text-gray-600 mb-2">
-            Paste your website URL below and click <strong>"Integrate Chatbot"</strong> to
-            generate the embed code instantly.
+            Paste your website URL and click <strong>"Integrate Chatbot"</strong> to generate
+            your embed code.
           </p>
 
           <div className="flex gap-2 mb-3">
@@ -396,60 +408,28 @@ const App = () => {
                   alert('Please enter a website URL first!');
                   return;
                 }
-                
-                // ✅ SECURITY FIX: Use current domain dynamically and add ?mode=chat
+
                 const DEPLOYED_BOT_URL = window.location.origin;
                 const FULL_BOT_URL = `${DEPLOYED_BOT_URL}?mode=chat`;
 
-                // ✅ SECURITY FIX: Prevent recursive iframe loading
                 const embedCode = `<script>
 (function(){
-  // Prevent loading if already inside an iframe (avoid recursion)
   if (window.self !== window.top) return;
-  
-  // Also check if we're in embedded mode via URL parameter
   const urlParams = new URLSearchParams(window.location.search);
   if (urlParams.get('mode') === 'chat') return;
-  
   const BOT_URL="${FULL_BOT_URL}";
   const button=document.createElement("button");
   button.innerHTML="💬";
-  button.setAttribute("aria-label", "Open chatbot");
-  Object.assign(button.style,{
-    position:"fixed",bottom:"25px",right:"25px",
-    backgroundColor:"#2563eb",color:"#fff",border:"none",
-    borderRadius:"50%",width:"60px",height:"60px",fontSize:"28px",
-    cursor:"pointer",boxShadow:"0 4px 10px rgba(0,0,0,0.3)",zIndex:"99999"
-  });
+  button.style.cssText="position:fixed;bottom:25px;right:25px;background:#2563eb;color:#fff;border:none;border-radius:50%;width:60px;height:60px;font-size:28px;cursor:pointer;box-shadow:0 4px 10px rgba(0,0,0,0.3);z-index:99999";
   document.body.appendChild(button);
-
-  const plate=document.createElement("div");
-  plate.textContent="💬 How can I assist you?";
-  Object.assign(plate.style,{
-    position:"fixed",bottom:"95px",right:"25px",background:"#fff",
-    color:"#2563eb",padding:"8px 14px",borderRadius:"25px",
-    fontSize:"14px",boxShadow:"0 3px 6px rgba(0,0,0,0.2)",
-    zIndex:"99999",transition:"opacity 0.5s ease"
-  });
-  document.body.appendChild(plate);
-  setTimeout(()=>plate.style.opacity="0",4000);
-
   const frame=document.createElement("iframe");
   frame.src=BOT_URL;
-  frame.setAttribute("title", "Chatbot");
-  Object.assign(frame.style,{
-    position:"fixed",bottom:"90px",right:"25px",width:"420px",
-    height:"600px",border:"none",borderRadius:"20px",
-    boxShadow:"0 4px 20px rgba(0,0,0,0.3)",display:"none",zIndex:"99999"
-  });
+  frame.title="Chatbot";
+  frame.style.cssText="position:fixed;bottom:90px;right:25px;width:420px;height:600px;border:none;border-radius:20px;box-shadow:0 4px 20px rgba(0,0,0,0.3);display:none;z-index:99999";
   document.body.appendChild(frame);
-
-  button.addEventListener("click",()=>{
-    frame.style.display=frame.style.display==="block"?"none":"block";
-  });
+  button.addEventListener("click",()=>frame.style.display=frame.style.display==="block"?"none":"block");
 })();
 </script>`;
-
                 setSetupConfig({ ...setupConfig, embedCode });
               }}
               className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700"
