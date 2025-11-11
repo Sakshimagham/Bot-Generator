@@ -18,7 +18,7 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: "Server API key not configured" });
     }
 
-    const MODEL_NAME = "gemini-2.0-flash-thinking-exp";
+    const MODEL_NAME = "gemini-2.5-flash";
     const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL_NAME}:generateContent?key=${API_KEY}`;
 
     // Accept both plain text and structured payload
@@ -58,3 +58,4 @@ export default async function handler(req, res) {
     });
   }
 }
+
