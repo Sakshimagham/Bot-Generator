@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
-// --- API Configuration (Mandatory Environment Style) ---
+// --- API Configuration ---
 const MAX_RETRIES = 5;
 
-// Utility function to convert File object to Base64 string
+// Convert File object to Base64
 const fileToBase64 = (file) => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -46,7 +46,7 @@ const App = () => {
     '--color-primary-hover': '#4338ca',
   };
 
-  // ✅ NEW: Persist bot setup between preview and embed mode
+  // ✅ Load config from localStorage
   useEffect(() => {
     const saved = localStorage.getItem('omniBotSetup');
     if (saved) {
@@ -62,6 +62,21 @@ const App = () => {
     localStorage.setItem('omniBotSetup', JSON.stringify(setupConfig));
   }, [setupConfig]);
 
+  // ✅ NEW: Load params when in embedded mode
+  useEffect(() => {
+    if (isEmbeddedMode) {
+      const params = new URLSearchParams(window.location.search);
+      setSetupConfig((prev) => ({
+        ...prev,
+        purpose: decodeURIComponent(params.get('purpose') || prev.purpose),
+        simulatedUrlContent: decodeURIComponent(
+          params.get('simulatedUrlContent') || prev.simulatedUrlContent
+        ),
+        customQnA: decodeURIComponent(params.get('customQnA') || prev.customQnA),
+      }));
+    }
+  }, [isEmbeddedMode]);
+
   // --- Scroll to bottom when chat updates ---
   useEffect(() => {
     if (chatHistoryRef.current) {
@@ -69,32 +84,29 @@ const App = () => {
     }
   }, [chatHistory]);
 
-  // --- Generate System Instruction ---
+  // --- System Instruction ---
   const getSystemInstruction = useCallback(() => {
     const { purpose, simulatedUrlContent, customQnA, location } = setupConfig;
     return `
       ${purpose}
 
-      --- KNOWLEDGE BASE (FROM URL & CUSTOM DATA) ---
-      The following information was gathered from the company website URL and custom Q&A pairs:
-
+      --- KNOWLEDGE BASE ---
       ${simulatedUrlContent}
 
       [CUSTOM Q&A / FINE-TUNING]:
       ${customQnA}
 
-      [LOCATION INTEGRATION]:
-      The business is located in ${location || 'an unspecified location'}.
+      [LOCATION]:
+      ${location || 'Not specified'}
 
       --- INSTRUCTIONS ---
-      1. Prioritize the KNOWLEDGE BASE for all answers.
-      2. Use image analysis if the user uploads one.
-      3. Include regional context if relevant.
-      4. Respond concisely and professionally.
+      - Use the knowledge base for all answers.
+      - Analyze images if uploaded.
+      - Answer concisely and professionally.
     `;
   }, [setupConfig]);
 
-  // --- Main API Call ---
+  // --- Send Message ---
   const handleSendMessage = async () => {
     const prompt = userInput.trim();
     if (!prompt && !imageFile) return;
@@ -108,11 +120,9 @@ const App = () => {
     };
 
     let imagePart = null;
-    let base64Data = null;
-
     if (imageFile) {
       try {
-        base64Data = await fileToBase64(imageFile);
+        const base64Data = await fileToBase64(imageFile);
         imagePart = {
           inlineData: {
             mimeType: base64Data.mimeType,
@@ -160,7 +170,7 @@ const App = () => {
           { role: 'model', parts: [{ text: responseText }] },
         ]);
       } else {
-        throw new Error(data.error || 'Something went wrong with the API.');
+        throw new Error(data.error || 'Something went wrong.');
       }
     } catch (err) {
       setChatHistory((prev) => [
@@ -195,9 +205,8 @@ const App = () => {
         className="flex-grow p-4 space-y-4 overflow-y-auto custom-scrollbar bg-gray-50"
       >
         <div className="flex justify-start">
-          <div className="max-w-[80%] p-3 rounded-xl shadow-md text-sm bg-indigo-600 text-white rounded-bl-sm animate-fade-in-down">
-            Hello! I'm running with your custom settings. Ask me anything about
-            your business.
+          <div className="max-w-[80%] p-3 rounded-xl shadow-md text-sm bg-indigo-600 text-white rounded-bl-sm">
+            Hello! I'm your customized Omni-Bot. Ask me anything about your business.
           </div>
         </div>
 
@@ -212,7 +221,7 @@ const App = () => {
           return (
             <div
               key={i}
-              className={`flex ${isUser ? 'justify-end' : 'justify-start'} animate-fade-in`}
+              className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}
             >
               <div
                 className={`max-w-[80%] p-3 rounded-xl shadow-lg text-sm whitespace-pre-wrap ${
@@ -222,7 +231,7 @@ const App = () => {
                 }`}
               >
                 {imageSrc && (
-                  <div className="mb-2 p-1 border border-gray-300 bg-white rounded-lg">
+                  <div className="mb-2 border border-gray-300 bg-white rounded-lg">
                     <img
                       src={imageSrc}
                       alt="Uploaded context"
@@ -256,9 +265,7 @@ const App = () => {
             }`}
           >
             <span>
-              {imageFile
-                ? `Attached: ${imageFile.name}`
-                : 'Attach Image (Multimodal)'}
+              {imageFile ? `Attached: ${imageFile.name}` : 'Attach Image (Multimodal)'}
             </span>
           </label>
           <input
@@ -282,7 +289,7 @@ const App = () => {
           <input
             type="text"
             placeholder="Ask your custom bot..."
-            className="flex-grow p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[--color-primary]"
+            className="flex-grow p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[--color-primary]"
             value={userInput}
             onChange={(e) => setUserInput(e.target.value)}
             onKeyDown={(e) =>
@@ -353,7 +360,10 @@ const App = () => {
             type="file"
             accept=".png,.jpg,.jpeg,.pdf,.doc,.docx,.txt"
             onChange={(e) =>
-              setSetupConfig({ ...setupConfig, simulatedFile: e.target.files[0] })
+              setSetupConfig({
+                ...setupConfig,
+                simulatedFile: e.target.files[0],
+              })
             }
             className="block w-full text-sm text-gray-700 border border-gray-300 rounded-lg cursor-pointer focus:ring-[--color-primary]"
           />
@@ -388,8 +398,7 @@ const App = () => {
         <div className="mt-6 p-4 border rounded-lg bg-gray-50">
           <h3 className="text-lg font-semibold mb-2">🌐 Integration</h3>
           <p className="text-sm text-gray-600 mb-2">
-            Paste your website URL and click <strong>"Integrate Chatbot"</strong> to generate
-            your embed code.
+            Paste your website URL and click <strong>"Integrate Chatbot"</strong> to generate your embed code.
           </p>
 
           <div className="flex gap-2 mb-3">
@@ -410,7 +419,12 @@ const App = () => {
                 }
 
                 const DEPLOYED_BOT_URL = window.location.origin;
-                const FULL_BOT_URL = `${DEPLOYED_BOT_URL}?mode=chat`;
+
+                const encodedPurpose = encodeURIComponent(setupConfig.purpose || '');
+                const encodedQnA = encodeURIComponent(setupConfig.customQnA || '');
+                const encodedContent = encodeURIComponent(setupConfig.simulatedUrlContent || '');
+
+                const FULL_BOT_URL = `${DEPLOYED_BOT_URL}?mode=chat&purpose=${encodedPurpose}&customQnA=${encodedQnA}&simulatedUrlContent=${encodedContent}`;
 
                 const embedCode = `<script>
 (function(){
@@ -430,6 +444,7 @@ const App = () => {
   button.addEventListener("click",()=>frame.style.display=frame.style.display==="block"?"none":"block");
 })();
 </script>`;
+
                 setSetupConfig({ ...setupConfig, embedCode });
               }}
               className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700"
