@@ -10,81 +10,29 @@
   <body>
     <div id="root"></div>
 
-    <!-- React Entry Point -->
+    <!-- ✅ React App Entry -->
     <script type="module" src="/src/main.jsx"></script>
 
-    <!-- ✅ Embedded Chatbot Script (Production-Ready) -->
+    <!-- ✅ Custom Embedded Chatbot Script -->
     <script>
       (function(){
-        // Prevent loading if already inside an iframe (avoid recursion)
         if (window.self !== window.top) return;
-
-        // Also check if we're in embedded mode via URL parameter
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.get('mode') === 'chat') return;
 
-        // ✅ Use deployed bot link (Vercel)
-        const BOT_URL = "https://bot-generator-pi.vercel.app?mode=chat";
+        const BOT_URL = "https://bot-generator-pi.vercel.app?mode=chat&purpose=Act%20as%20a%20friendly%20and%20knowledgeable%20website%20assistant.%20Guide%20users%20on%20how%20to%20use%20this%20website%20step-by-step%20%E2%80%94%20including%20how%20to%20create%2C%20customize%2C%20and%20deploy%20their%20own%20bots.%20Answer%20all%20user%20questions%20politely%20and%20provide%20clear%2C%20easy-to-understand%20explanations.%20If%20the%20user%20seems%20confused%2C%20provide%20example%20responses%20and%20guide%20them%20through%20actions%20visually.%0A%0A&customQnA=Q%3A%20How%20do%20I%20integrate%20this%20chatbot%20into%20my%20website%3F%0AA%3A%20It%E2%80%99s%20easy!%20Just%20copy%20the%20generated%20%3Cscript%3E%20embed%20code%20and%20paste%20it%20before%20the%20closing%20%3C%2Fbody%3E%20tag%20of%20your%20website%E2%80%99s%20HTML%20file.%20This%20works%20on%20most%20hosting%20platforms.%20%20%0AWould%20you%20like%20me%20to%20guide%20you%20for%20your%20specific%20platform%20(Vercel%2C%20Netlify%2C%20or%20GitHub%20Pages)%3F%0A%0A---%0A%0AQ%3A%20I%E2%80%99m%20using%20Vercel.%0AA%3A%20%E2%9C%85%20On%20Vercel%3A%0A1.%20Go%20to%20your%20deployed%20project%20%E2%86%92%20click%20%E2%80%9CEdit%20Code%E2%80%9D.%0A2.%20Open%20%60index.html%60%20(or%20your%20main%20HTML%20file).%0A3.%20Paste%20your%20chatbot%20embed%20code%20just%20before%20%60%3C%2Fbody%3E%60.%0A4.%20Redeploy%20your%20project.%20%20%0AYour%20chatbot%20will%20appear%20instantly%20in%20the%20bottom-right%20corner%20of%20your%20site!%0A%0A---%0A%0AQ%3A%20I%E2%80%99m%20using%20Netlify.%0AA%3A%20%E2%9C%85%20On%20Netlify%3A%0A1.%20Open%20your%20project%20folder%20locally.%0A2.%20In%20%60index.html%60%2C%20paste%20the%20embed%20script%20before%20the%20%60%3C%2Fbody%3E%60%20tag.%0A3.%20Push%20your%20changes%20to%20GitHub.%0A4.%20Netlify%20will%20auto-redeploy%20your%20site%20%E2%80%94%20your%20bot%20will%20appear.%0A%0A---%0A%0AQ%3A%20I%E2%80%99m%20using%20GitHub%20Pages.%0AA%3A%20%E2%9C%85%20On%20GitHub%20Pages%3A%0A1.%20Open%20your%20repository.%0A2.%20In%20the%20%60index.html%60%20file%2C%20paste%20the%20chatbot%20embed%20script%20before%20%60%3C%2Fbody%3E%60.%0A3.%20Commit%20and%20push%20changes.%0A4.%20Refresh%20your%20GitHub%20Pages%20link%20to%20see%20the%20chatbot%20live.%0A%0A---%0A%0AQ%3A%20I%E2%80%99m%20using%20a%20custom%20website%20or%20localhost.%0AA%3A%20%E2%9C%85%20On%20a%20custom%20site%3A%0A1.%20Open%20your%20main%20HTML%20file.%0A2.%20Paste%20the%20embed%20code%20before%20%60%3C%2Fbody%3E%60.%0A3.%20Save%20and%20reload%20the%20page%20%E2%80%94%20your%20chatbot%20should%20appear%20at%20the%20bottom-right.%0A%0A---%0A%0AQ%3A%20The%20bot%20doesn%E2%80%99t%20appear%20after%20pasting.%0AA%3A%20%F0%9F%94%A7%20Try%20this%3A%0A-%20Make%20sure%20you%20placed%20the%20script%20**before**%20the%20closing%20%60%3C%2Fbody%3E%60%20tag.%0A-%20Ensure%20your%20bot%20URL%20inside%20the%20embed%20code%20starts%20with%20%60https%3A%2F%2F%60%20and%20is%20active.%0A-%20If%20using%20local%20testing%20(localhost)%2C%20use%20the%20correct%20local%20port.%0A%0A---%0A%0AQ%3A%20Can%20I%20customize%20the%20button%20or%20position%3F%0AA%3A%20Yes!%20You%20can%20edit%20the%20embed%20code%E2%80%99s%20CSS%20styles.%20For%20example%2C%20change%3A%0A%60bottom%3A%20%2225px%22%60%20or%20%60right%3A%20%2225px%22%60%20to%20move%20it.%20%20%0AYou%20can%20even%20replace%20the%20%F0%9F%92%AC%20icon%20with%20your%20own%20text%20or%20image.&simulatedUrlContent=https%3A%2F%2Fbot-generator-pi.vercel.app%2F%0A%0AWebsite%20Name%3A%20Omni-Bot%20Creator%0ACreated%20and%20Managed%20by%3A%20Sakshi%20Magham%0AAcademic%20Background%3A%20Student%20at%20Ramniranjan%20Jhunjhunwala%20College%2C%20pursuing%20M.Sc%20in%20Data%20Science%20and%20Artificial%20Intelligence.%0A%0APurpose%3A%0AOmni-Bot%20Creator%20helps%20users%20design%2C%20train%2C%20and%20integrate%20their%20own%20AI-powered%20chatbots%20into%20websites%20or%20projects%20%E2%80%94%20without%20needing%20to%20code.%0A%0AFeatures%3A%0A1.%20Define%20your%20chatbot%E2%80%99s%20personality%2C%20tone%2C%20and%20purpose.%0A2.%20Upload%20documents%2C%20text%2C%20or%20FAQs%20to%20train%20it.%0A3.%20Preview%20and%20test%20in%20real%20time.%0A4.%20Integrate%20instantly%20with%20your%20website%20using%20an%20embed%20code.%0A%0ABenefits%3A%0A-%20Free%20and%20beginner-friendly.%0A-%20Perfect%20for%20students%2C%20startups%2C%20or%20businesses.%0A-%20Simple%20interface%20with%20instant%20deployment.%0A-%20Created%20as%20part%20of%20an%20academic%20and%20innovative%20AI%20project%20by%C2%A0Sakshi%C2%A0Magham.";
 
-        // 💬 Floating Chat Button
         const button = document.createElement("button");
         button.innerHTML = "💬";
-        button.setAttribute("aria-label", "Open chatbot");
-        Object.assign(button.style, {
-          position: "fixed",
-          bottom: "25px",
-          right: "25px",
-          backgroundColor: "#2563eb",
-          color: "#fff",
-          border: "none",
-          borderRadius: "50%",
-          width: "60px",
-          height: "60px",
-          fontSize: "28px",
-          cursor: "pointer",
-          boxShadow: "0 4px 10px rgba(0,0,0,0.3)",
-          zIndex: "99999"
-        });
+        button.style.cssText = "position:fixed;bottom:25px;right:25px;background:#2563eb;color:#fff;border:none;border-radius:50%;width:60px;height:60px;font-size:28px;cursor:pointer;box-shadow:0 4px 10px rgba(0,0,0,0.3);z-index:99999";
         document.body.appendChild(button);
 
-        // 💬 Greeting Plate
-        const plate = document.createElement("div");
-        plate.textContent = "💬 How can I assist you?";
-        Object.assign(plate.style, {
-          position: "fixed",
-          bottom: "95px",
-          right: "25px",
-          background: "#fff",
-          color: "#2563eb",
-          padding: "8px 14px",
-          borderRadius: "25px",
-          fontSize: "14px",
-          boxShadow: "0 3px 6px rgba(0,0,0,0.2)",
-          zIndex: "99999",
-          transition: "opacity 0.5s ease"
-        });
-        document.body.appendChild(plate);
-        setTimeout(() => plate.style.opacity = "0", 4000);
-
-        // 💬 Chat Iframe
         const frame = document.createElement("iframe");
         frame.src = BOT_URL;
-        frame.setAttribute("title", "Chatbot");
-        Object.assign(frame.style, {
-          position: "fixed",
-          bottom: "90px",
-          right: "25px",
-          width: "420px",
-          height: "600px",
-          border: "none",
-          borderRadius: "20px",
-          boxShadow: "0 4px 20px rgba(0,0,0,0.3)",
-          display: "none",
-          zIndex: "99999"
-        });
+        frame.title = "Chatbot";
+        frame.style.cssText = "position:fixed;bottom:90px;right:25px;width:420px;height:600px;border:none;border-radius:20px;box-shadow:0 4px 20px rgba(0,0,0,0.3);display:none;z-index:99999";
         document.body.appendChild(frame);
 
-        // 🧠 Toggle Chat Window
         button.addEventListener("click", () => {
           frame.style.display = frame.style.display === "block" ? "none" : "block";
         });
